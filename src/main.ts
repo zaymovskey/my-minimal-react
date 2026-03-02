@@ -1,3 +1,4 @@
+import { buildFiberTree } from "./core/fiber/buildFiberTree";
 import { createElement } from "./core/vdom/createElement";
 
 const App = () => {
@@ -6,4 +7,6 @@ const App = () => {
 
 const rootVNode = createElement(App, null);
 
-console.log(rootVNode);
+const fuberTree = buildFiberTree(rootVNode);
+
+console.log(fuberTree);
