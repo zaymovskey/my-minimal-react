@@ -4,11 +4,6 @@ import type { CommitOp } from "../renderPhase/types";
 export function applyCommit(ops: CommitOp[], container: Node): void {
   for (const op of ops) {
     switch (op.type) {
-      case "append": {
-        op.parent.appendChild(op.node);
-        break;
-      }
-
       case "remove": {
         op.node.parentNode?.removeChild(op.node);
         break;
