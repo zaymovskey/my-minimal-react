@@ -7,6 +7,6 @@ const App = () => {
 
 const rootVNode = createElement(App, null);
 
-const fuberTree = buildFiberTree(rootVNode);
+const fiberTree = buildFiberTree(rootVNode);
 
-console.log(fuberTree);
+console.log(fiberTree);

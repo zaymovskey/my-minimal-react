@@ -1,7 +1,7 @@
 import type { VNode } from "../vdom/types";
-import type { FiberNode } from "./types";
+import type { FiberWip } from "./types";
 
-export function buildFiberTree(vnode: VNode): FiberNode {
+export function buildFiberTree(vnode: VNode): FiberWip {
   let children: VNode[] = [];
   if (vnode.kind === "host") {
     children = vnode.children;
@@ -22,7 +22,7 @@ export function buildFiberTree(vnode: VNode): FiberNode {
   return fiber;
 }
 
-function attachFiberChildren(parent: FiberNode, children: FiberNode[]): void {
+function attachFiberChildren(parent: FiberWip, children: FiberWip[]): void {
   parent.child = children[0] ?? null;
 
   for (let i = 0; i < children.length; i++) {
@@ -32,7 +32,7 @@ function attachFiberChildren(parent: FiberNode, children: FiberNode[]): void {
   }
 }
 
-function createFiberFromVNode(vnode: VNode): FiberNode {
+function createFiberFromVNode(vnode: VNode): FiberWip {
   if (vnode.kind === "host") {
     return {
       kind: "host",
@@ -40,7 +40,7 @@ function createFiberFromVNode(vnode: VNode): FiberNode {
       parent: null,
       child: null,
       sibling: null,
-      stateNode: document.createElement(vnode.tag),
+      stateNode: null,
     };
   }
   if (vnode.kind === "text") {
@@ -50,7 +50,7 @@ function createFiberFromVNode(vnode: VNode): FiberNode {
       parent: null,
       child: null,
       sibling: null,
-      stateNode: document.createTextNode(vnode.value),
+      stateNode: null,
     };
   }
   if (vnode.kind === "fc") {

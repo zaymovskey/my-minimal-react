@@ -1,12 +1,53 @@
-import type { VNode } from "../vdom/types";
+import type { FCVNode, HostVNode, TextVNode } from "../vdom/types";
 
-export type FiberNode = {
-  kind: "fc" | "host" | "text";
-  vnode: VNode;
-
+interface FiberBase {
   parent: FiberNode | null;
   child: FiberNode | null;
   sibling: FiberNode | null;
+}
 
-  stateNode: HTMLElement | Text | null;
+export type FiberLinks<TSelf> = {
+  parent: TSelf | null;
+  child: TSelf | null;
+  sibling: TSelf | null;
 };
+
+export interface HostFiber extends FiberLinks<FiberNode> {
+  kind: "host";
+  vnode: HostVNode;
+  stateNode: HTMLElement;
+}
+
+export interface TextFiber extends FiberLinks<FiberNode> {
+  kind: "text";
+  vnode: TextVNode;
+  stateNode: Text;
+}
+
+export interface FCFiber extends FiberLinks<FiberNode> {
+  kind: "fc";
+  vnode: FCVNode;
+  stateNode: null;
+}
+
+export type FiberNode = HostFiber | TextFiber | FCFiber;
+
+export interface HostFiberWip extends FiberLinks<FiberWip> {
+  kind: "host";
+  vnode: HostVNode;
+  stateNode: null;
+}
+
+export interface TextFiberWip extends FiberLinks<FiberWip> {
+  kind: "text";
+  vnode: TextVNode;
+  stateNode: null;
+}
+
+export interface FCFiberWip extends FiberLinks<FiberWip> {
+  kind: "fc";
+  vnode: FCVNode;
+  stateNode: null;
+}
+
+export type FiberWip = HostFiberWip | TextFiberWip | FCFiberWip;
