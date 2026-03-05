@@ -1,7 +1,4 @@
-import type { FiberWip } from "../fiber/types";
-
-export type HostOrTextWip = Extract<FiberWip, { kind: "host" | "text" }>;
-export type HostWip = Extract<FiberWip, { kind: "host" }>;
+import type { HostOrTextWip, HostWip } from "../fiber/types";
 
 export type CommitOp =
   | { type: "append"; parent: Node; node: Node }
@@ -11,4 +8,10 @@ export type CommitOp =
       parentFiber: HostWip | null;
     }
   | { type: "remove"; node: Node }
-  | { type: "updateText"; node: Text; text: string };
+  | { type: "updateText"; node: Text; text: string }
+  | {
+      type: "updateProps";
+      node: HTMLElement;
+      prev: Record<string, any>;
+      next: Record<string, any>;
+    };

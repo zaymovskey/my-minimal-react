@@ -34,8 +34,39 @@ export function applyCommit(ops: CommitOp[], container: Node): void {
         fiberNode.stateNode = domNode;
         break;
       }
+
+      case "updateProps": {
+        // Удалить старые
+        for (const prevKey in op.prev) {
+          if (!(prevKey in op.next)) {
+            op.node.removeAttribute(prevKey);
+          }
+        }
+        // Добавить новые
+        for (const nextKey in op.next) {
+          if (op.prev[nextKey] !== op.next[nextKey]) {
+            if (isEventProp(nextKey)) {
+              const eventName = nextKey.slice(2).toLowerCase();
+              if (op.prev[nextKey]) {
+                op.node.removeEventListener(eventName, op.prev[nextKey]);
+              }
+              op.node.addEventListener(eventName, op.next[nextKey]);
+              continue;
+            }
+
+            const attr = nextKey === "className" ? "class" : nextKey;
+            op.node.setAttribute(attr, String(op.next[nextKey]));
+          }
+        }
+      }
     }
   }
+}
+
+function isEventProp(key: string): boolean {
+  return (
+    key.startsWith("on") && key.length > 2 && key[2] === key[2].toUpperCase()
+  );
 }
 
 function createDomNodeForFiber(

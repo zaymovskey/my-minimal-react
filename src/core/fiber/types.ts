@@ -45,3 +45,6 @@ export interface FCFiberWip extends FiberLinks<FiberWip> {
 }
 
 export type FiberWip = HostFiberWip | TextFiberWip | FCFiberWip;
+
+export type HostOrTextWip = Extract<FiberWip, { kind: "host" | "text" }>;
+export type HostWip = Extract<FiberWip, { kind: "host" }>;

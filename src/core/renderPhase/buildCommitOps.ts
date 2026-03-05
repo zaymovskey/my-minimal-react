@@ -1,5 +1,10 @@
 import type { FiberNode, FiberWip } from "../fiber/types";
-import type { CommitOp, HostWip } from "./types";
+import type { CommitOp } from "./types";
+
+type HasFiberLinks<TSelf> = {
+  parent: TSelf | null;
+  kind: "host" | "text" | "fc";
+};
 
 export function buildCommitOps(
   oldfiber: FiberNode | null, // null при первом рендере
@@ -7,8 +12,53 @@ export function buildCommitOps(
   ops: CommitOp[],
 ): CommitOp[] {
   if (oldfiber === null) {
+    // Первый рендер
     collectPlacements(newfiber, ops);
     return ops;
+  }
+  // Ререндер
+
+  // text-text
+  if (oldfiber.kind === "text" && newfiber.kind === "text") {
+    // Изменился
+    if (oldfiber.vnode.value !== newfiber.vnode.value) {
+      ops.push({
+        type: "updateText",
+        node: oldfiber.stateNode,
+        text: newfiber.vnode.value,
+      });
+    }
+  }
+
+  // host-host
+  if (oldfiber.kind === "host" && newfiber.kind === "host") {
+    // Изменился tag
+    if (oldfiber.vnode.tag !== newfiber.vnode.tag) {
+      ops.push({
+        type: "remove",
+        node: oldfiber.stateNode,
+      });
+      ops.push({
+        type: "placement",
+        fiber: newfiber,
+        parentFiber: findHostParentFiber<FiberWip>(newfiber),
+      });
+
+      if (newfiber.child) {
+        collectPlacements(newfiber.child, ops);
+      }
+      return ops;
+    }
+
+    if (oldfiber.vnode.tag === newfiber.vnode.tag) {
+      // Обновляем пропсы
+      ops.push({
+        type: "updateProps",
+        node: oldfiber.stateNode,
+        prev: oldfiber.vnode.props,
+        next: newfiber.vnode.props,
+      });
+    }
   }
 
   return ops;
@@ -26,10 +76,12 @@ function collectPlacements(fiber: FiberWip, ops: CommitOp[]) {
   if (fiber.sibling) collectPlacements(fiber.sibling, ops);
 }
 
-function findHostParentFiber(fiber: FiberWip): HostWip | null {
+export function findHostParentFiber<T extends HasFiberLinks<T>>(
+  fiber: T,
+): Extract<T, { kind: "host" }> | null {
   let p = fiber.parent;
   while (p) {
-    if (p.kind === "host") return p;
+    if (p.kind === "host") return p as Extract<T, { kind: "host" }>;
     p = p.parent;
   }
   return null;
