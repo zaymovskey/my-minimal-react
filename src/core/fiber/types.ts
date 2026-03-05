@@ -1,11 +1,5 @@
 import type { FCVNode, HostVNode, TextVNode } from "../vdom/types";
 
-interface FiberBase {
-  parent: FiberNode | null;
-  child: FiberNode | null;
-  sibling: FiberNode | null;
-}
-
 export type FiberLinks<TSelf> = {
   parent: TSelf | null;
   child: TSelf | null;

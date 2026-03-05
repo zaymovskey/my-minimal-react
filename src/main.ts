@@ -1,12 +1,12 @@
-import { buildFiberTree } from "./core/fiber/buildFiberTree";
+import { render } from "./core/render";
 import { createElement } from "./core/vdom/createElement";
 
+const container = document.getElementById("root")!;
+
 const App = () => {
-  return createElement("div", null, "Hello world");
+  return createElement("div", null, createElement("span", null, "Hello world"));
 };
 
 const rootVNode = createElement(App, null);
 
-const fiberTree = buildFiberTree(rootVNode);
-
-console.log(fiberTree);
+render(rootVNode, container);

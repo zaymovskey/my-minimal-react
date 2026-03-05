@@ -1,5 +1,5 @@
 import type { FiberNode, FiberWip } from "../fiber/types";
-import type { CommitOp } from "./types";
+import type { CommitOp, HostWip } from "./types";
 
 export function buildCommitOps(
   oldfiber: FiberNode | null, // null при первом рендере
@@ -21,17 +21,12 @@ function collectPlacements(fiber: FiberWip, ops: CommitOp[]) {
     ops.push({ type: "placement", fiber, parentFiber });
   }
 
-  if (fiber.kind === "fc") {
-    if (fiber.child) collectPlacements(fiber.child, ops);
-    if (fiber.sibling) collectPlacements(fiber.sibling, ops);
-
-    return;
-  }
-
-  throw new Error("🛑 Unknown fiber kind");
+  // Продолжаем обход родственников
+  if (fiber.child) collectPlacements(fiber.child, ops);
+  if (fiber.sibling) collectPlacements(fiber.sibling, ops);
 }
 
-function findHostParentFiber(fiber: FiberWip): FiberWip | null {
+function findHostParentFiber(fiber: FiberWip): HostWip | null {
   let p = fiber.parent;
   while (p) {
     if (p.kind === "host") return p;
