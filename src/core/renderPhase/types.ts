@@ -1,7 +1,6 @@
 import type { HostOrTextWip, HostWip } from "../fiber/types";
 
 export type CommitOp =
-  | { type: "append"; parent: Node; node: Node }
   | {
       type: "placement";
       fiber: HostOrTextWip;
