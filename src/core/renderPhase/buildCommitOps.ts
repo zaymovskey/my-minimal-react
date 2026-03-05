@@ -1,5 +1,5 @@
 import type { FiberNode, FiberWip } from "../fiber/types";
-import type { CommitOp } from "./types";
+import type { CommitOp } from "../commitPhase.ts/types";
 
 type HasFiberLinks<TSelf> = {
   parent: TSelf | null;

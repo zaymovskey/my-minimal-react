@@ -1,5 +1,5 @@
 import type { FiberNode, FiberWip } from "../fiber/types";
-import type { CommitOp } from "../renderPhase/types";
+import type { CommitOp } from "./types";
 
 export function applyCommit(ops: CommitOp[], container: Node): void {
   for (const op of ops) {

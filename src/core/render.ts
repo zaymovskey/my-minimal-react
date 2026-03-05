@@ -2,7 +2,7 @@ import { applyCommit } from "./commitPhase.ts/applyCommit";
 import { buildFiberTree } from "./fiber/buildFiberTree";
 import type { FiberNode } from "./fiber/types";
 import { buildCommitOps } from "./renderPhase/buildCommitOps";
-import type { CommitOp } from "./renderPhase/types";
+import type { CommitOp } from "./commitPhase.ts/types";
 import type { VNode } from "./vdom/types";
 
 let currentFiberTree: FiberNode | null = null;
