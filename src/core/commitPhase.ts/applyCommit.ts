@@ -17,7 +17,8 @@ export function applyCommit(ops: CommitOp[], container: Node): void {
       case "placement": {
         const { fiber, parentFiber } = op;
         const domNode = createDomNodeForFiber(fiber);
-        // При первом рендере parentFiber будет null, тогда родителем для нового узла будет контейнер
+        // При первом рендере parentFiber у первого родителя будет null, поэтому используем container.
+        // Остальные опции будут с ненулевым parentFiber, так как мы рекурсивно обрабатываем всех детей.
         const parentNode = parentFiber ? parentFiber.stateNode : container;
         if (!parentNode) {
           throw new Error("🛑 Parent host DOM is missing (wrong ops order?)");

@@ -14,7 +14,7 @@ export function buildFiberTree(vnode: VNode): FiberWip {
     children = [rendered];
   }
 
-  const fiber = createFiberFromVNode(vnode);
+  const fiber = createFiberWipFromVNode(vnode);
   const fiberChildren = children.map(buildFiberTree);
 
   attachFiberChildren(fiber, fiberChildren);
@@ -32,7 +32,7 @@ function attachFiberChildren(parent: FiberWip, children: FiberWip[]): void {
   }
 }
 
-function createFiberFromVNode(vnode: VNode): FiberWip {
+function createFiberWipFromVNode(vnode: VNode): FiberWip {
   if (vnode.kind === "host") {
     return {
       kind: "host",

@@ -1,4 +1,10 @@
-import type { FunctionalComponent, HostTag, Props, VNode } from "./types";
+import type {
+  ElementProps,
+  FunctionalComponent,
+  HostTag,
+  Props,
+  VNode,
+} from "./types";
 
 type ChildInput = VNode | string | number | boolean | null | undefined;
 
@@ -18,12 +24,12 @@ function normalizeChildren(raw: ChildInput[]): VNode[] {
 // Host
 export function createElement(
   tag: HostTag,
-  props: Props | null,
+  props: ElementProps | null,
   ...children: ChildInput[]
 ): VNode;
 
 // FC
-export function createElement<P extends Props>(
+export function createElement<P extends ElementProps>(
   component: FunctionalComponent<P>,
   props: P | null,
   ...children: ChildInput[]
@@ -31,21 +37,37 @@ export function createElement<P extends Props>(
 
 export function createElement(
   type: HostTag | FunctionalComponent<any>,
-  rawProps: Props | null,
+  rawProps: ElementProps | null,
   ...rawChildren: ChildInput[]
 ): VNode {
-  const props: Props = rawProps ?? {};
-
   const children = normalizeChildren(rawChildren);
 
-  // children живут в props для ВСЕХ, включая FC (как в React)
-  (props as any).children = children;
-
-  if (typeof type === "string") {
-    // у host есть отдельное поле children (удобно для reconcile/DOM)
-    return { kind: "host", tag: type, props, children };
+  const key = rawProps?.key ?? null;
+  if (key != null && typeof key !== "string") {
+    throw new Error("🛑 Key must be a string");
   }
 
-  // у FC нет отдельного children — только props.children
-  return { kind: "fc", component: type, props };
+  const props: Props = {
+    ...(rawProps ?? {}),
+    children,
+  };
+
+  delete props.key;
+
+  if (typeof type === "string") {
+    return {
+      kind: "host",
+      tag: type,
+      props,
+      children,
+      key: key ?? undefined,
+    };
+  }
+
+  return {
+    kind: "fc",
+    component: type,
+    props,
+    key: key ?? undefined,
+  };
 }
