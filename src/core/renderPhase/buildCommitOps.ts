@@ -129,7 +129,7 @@ function collectChildren<T extends FiberWip | FiberNode>(
   return out;
 }
 
-function collectPlacements(fiber: FiberWip | FiberNode, ops: CommitOp[]) {
+function collectPlacements(fiber: FiberWip, ops: CommitOp[]) {
   const parentFiber = findHostParentFiber(fiber);
 
   if (fiber.kind === "host" || fiber.kind === "text") {
