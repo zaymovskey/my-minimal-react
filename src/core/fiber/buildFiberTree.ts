@@ -1,20 +1,27 @@
+import { beginComponentRender, endComponentRender } from "../hooks/useState";
 import type { VNode } from "../vdom/types";
-import type { FiberWip } from "./types";
+import type { FCFiberWip, FiberWip } from "./types";
 
 export function buildFiberTree(vnode: VNode): FiberWip {
   let children: VNode[] = [];
   if (vnode.kind === "host") {
     children = vnode.children;
   }
+
   if (vnode.kind === "text") {
     children = [];
   }
-  if (vnode.kind === "fc") {
-    const rendered = vnode.component(vnode.props);
-    children = [rendered];
-  }
 
   const fiber = createFiberWipFromVNode(vnode);
+
+  if (vnode.kind === "fc") {
+    // Раз vnode.kind === "fc", то мы точно знаем, что fiber - это FCFiberWip, поэтому можем сделать type assertion
+    beginComponentRender(fiber as FCFiberWip);
+    const rendered = vnode.component(vnode.props);
+    children = [rendered];
+    endComponentRender();
+  }
+
   const fiberChildren = children.map(buildFiberTree);
 
   attachFiberChildren(fiber, fiberChildren);
@@ -61,6 +68,7 @@ function createFiberWipFromVNode(vnode: VNode): FiberWip {
       child: null,
       sibling: null,
       stateNode: null,
+      hooks: [],
     };
   }
 

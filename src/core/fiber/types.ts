@@ -1,3 +1,4 @@
+import type { StateHook } from "../hooks/useState";
 import type { FCVNode, HostVNode, TextVNode } from "../vdom/types";
 
 export type FiberLinks<TSelf> = {
@@ -22,6 +23,7 @@ export interface FCFiber extends FiberLinks<FiberNode> {
   kind: "fc";
   vnode: FCVNode;
   stateNode: null;
+  hooks: StateHook<unknown>[];
 }
 
 export type FiberNode = HostFiber | TextFiber | FCFiber;
@@ -42,6 +44,7 @@ export interface FCFiberWip extends FiberLinks<FiberWip> {
   kind: "fc";
   vnode: FCVNode;
   stateNode: null;
+  hooks: StateHook<unknown>[];
 }
 
 export type FiberWip = HostFiberWip | TextFiberWip | FCFiberWip;

@@ -37,6 +37,9 @@ export function buildCommitOps(
   // 1. text-text |
   // -------------
   if (oldfiber.kind === "text" && newfiber.kind === "text") {
+    // Переиспользуем DOM-ноду, просто обновляем текст
+    newfiber.stateNode = oldfiber.stateNode as any;
+
     // 1.1 Изменился текст
     if (oldfiber.vnode.value !== newfiber.vnode.value) {
       ops.push({
@@ -69,6 +72,9 @@ export function buildCommitOps(
       }
       return ops;
     }
+
+    // Тэг не изменился, нужно переиспользовать DOM-нод
+    newfiber.stateNode = oldfiber.stateNode as any;
 
     // 2.2 Тэг не изменился - обновляем пропсы
     ops.push({

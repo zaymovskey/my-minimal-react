@@ -17,6 +17,11 @@ export function applyCommit(ops: CommitOp[], container: Node): void {
       case "placement": {
         const { fiber, parentFiber } = op;
         const domNode = createDomNodeForFiber(fiber);
+
+        if (fiber.kind === "host") {
+          applyProps(domNode as HTMLElement, {}, fiber.vnode.props);
+        }
+
         // При первом рендере parentFiber у первого родителя будет null, поэтому используем container.
         // Остальные опции будут с ненулевым parentFiber, так как мы рекурсивно обрабатываем всех детей.
         const parentNode = parentFiber ? parentFiber.stateNode : container;
@@ -28,32 +33,13 @@ export function applyCommit(ops: CommitOp[], container: Node): void {
         // В этот момент FiberWip превращается в FiberNode, так как мы уже применили все изменения к DOM
         const fiberNode = fiber as unknown as FiberNode;
         fiberNode.stateNode = domNode;
+
         break;
       }
 
       case "updateProps": {
-        // Удалить старые
-        for (const prevKey in op.prev) {
-          if (!(prevKey in op.next)) {
-            op.node.removeAttribute(prevKey);
-          }
-        }
-        // Добавить новые
-        for (const nextKey in op.next) {
-          if (op.prev[nextKey] !== op.next[nextKey]) {
-            if (isEventProp(nextKey)) {
-              const eventName = nextKey.slice(2).toLowerCase();
-              if (op.prev[nextKey]) {
-                op.node.removeEventListener(eventName, op.prev[nextKey]);
-              }
-              op.node.addEventListener(eventName, op.next[nextKey]);
-              continue;
-            }
-
-            const attr = nextKey === "className" ? "class" : nextKey;
-            op.node.setAttribute(attr, String(op.next[nextKey]));
-          }
-        }
+        applyProps(op.node, op.prev, op.next);
+        break;
       }
     }
   }
@@ -76,4 +62,43 @@ function createDomNodeForFiber(
   }
 
   throw new Error("🛑 Only host and text fibers can be placed in the DOM");
+}
+
+function applyProps(
+  node: HTMLElement,
+  prev: Record<string, unknown>,
+  next: Record<string, unknown>,
+) {
+  for (const prevKey in prev) {
+    if (prevKey === "children") continue;
+
+    if (!(prevKey in next)) {
+      if (isEventProp(prevKey)) {
+        const eventName = prevKey.slice(2).toLowerCase();
+        node.removeEventListener(eventName, prev[prevKey] as EventListener);
+      } else {
+        const attr = prevKey === "className" ? "class" : prevKey;
+        node.removeAttribute(attr);
+      }
+    }
+  }
+
+  for (const nextKey in next) {
+    if (nextKey === "children") continue;
+
+    if (prev[nextKey] !== next[nextKey]) {
+      if (isEventProp(nextKey)) {
+        const eventName = nextKey.slice(2).toLowerCase();
+
+        if (prev[nextKey]) {
+          node.removeEventListener(eventName, prev[nextKey] as EventListener);
+        }
+
+        node.addEventListener(eventName, next[nextKey] as EventListener);
+      } else {
+        const attr = nextKey === "className" ? "class" : nextKey;
+        node.setAttribute(attr, String(next[nextKey]));
+      }
+    }
+  }
 }

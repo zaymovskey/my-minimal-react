@@ -7,7 +7,13 @@ import type { VNode } from "./vdom/types";
 
 let currentFiberTree: FiberNode | null = null;
 
+let currentRootVNode: VNode | null = null;
+let currentContainer: HTMLElement | null = null;
+
 export function render(vnode: VNode, container: HTMLElement): void {
+  currentRootVNode = vnode;
+  currentContainer = container;
+
   const wipFiberTree = buildFiberTree(vnode);
   const commitOps: CommitOp[] = [];
 
@@ -20,4 +26,12 @@ export function render(vnode: VNode, container: HTMLElement): void {
   // полноценным FiberNode.
   const fiberTree = wipFiberTree as unknown as FiberNode;
   currentFiberTree = fiberTree;
+}
+
+export function scheduleUpdate() {
+  if (!currentRootVNode || !currentContainer) {
+    throw new Error("No root to rerender");
+  }
+
+  render(currentRootVNode, currentContainer);
 }
